@@ -1,0 +1,15 @@
+.analysis-container {
+    height: 35vh;
+    width: 70vw;
+    border: 1px solid #707070;
+    /* grid-column: 1;
+    grid-row: 1; */
+    grid-area: 2 / 2 / 2 / 2;
+    display: flex;
+    /* flex-direction: column; */
+    gap: 10px;
+    padding: 10px 10px;
+    margin: 15px;
+    border-radius: 10px;
+    place-self: center;
+}

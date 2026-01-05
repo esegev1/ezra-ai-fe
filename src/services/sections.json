@@ -1,0 +1,287 @@
+{
+    "demographics": {
+        "title": "Household Member Demographics",
+        "rows": [
+            {
+                "instanceId": 1,
+                "dbId": {
+                    "success": true,
+                    "data": 39
+                }
+            },
+            {
+                "instanceId": 2,
+                "dbId": {
+                    "success": true,
+                    "data": 40
+                }
+            }
+        ],
+        "fields": [
+            {
+                "type": "text",
+                "placeholder": "First Name"
+            },
+            {
+                "type": "text",
+                "placeholder": "Last Name"
+            },
+            {
+                "type": "select",
+                "placeholder": "Gender...",
+                "options": [
+                    "Male",
+                    "Female",
+                    "Other"
+                ]
+            },
+            {
+                "type": "select",
+                "placeholder": "Industry...",
+                "options": [
+                    "agriculture",
+                    "manufacturing",
+                    "construction",
+                    "energy",
+                    "transportation",
+                    "technology",
+                    "finance",
+                    "healthcare",
+                    "public",
+                    "services",
+                    "other"
+                ]
+            }
+        ]
+    },
+    "incomes": {
+        "title": "Income",
+        "rows": [
+            {
+                "instanceId": 1
+            }
+        ],
+        "fields": [
+            {
+                "type": "text",
+                "placeholder": "Source"
+            },
+            {
+                "type": "text",
+                "placeholder": "Paycheck Amount"
+            },
+            {
+                "type": "select",
+                "placeholder": "Frequency...",
+                "options": [
+                    "every week",
+                    "Every 2 Weeks",
+                    "15th And 30th"
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "title": "Assets",
+        "rows": [
+            {
+                "instanceId": 1
+            }
+        ],
+        "fields": [
+            {
+                "type": "text",
+                "placeholder": "Name"
+            },
+            {
+                "type": "select",
+                "placeholder": "Category...",
+                "options": [
+                    "Home",
+                    "Second Home",
+                    "Rental Property",
+                    "401k",
+                    "529(c)",
+                    "Car",
+                    "Stocks",
+                    "Other"
+                ]
+            },
+            {
+                "type": "text",
+                "placeholder": "Value"
+            }
+        ]
+    },
+    "liabilities": {
+        "title": "Liabilities",
+        "rows": [
+            {
+                "instanceId": 1
+            }
+        ],
+        "fields": [
+            {
+                "type": "text",
+                "placeholder": "Name"
+            },
+            {
+                "type": "select",
+                "placeholder": "Category...",
+                "options": [
+                    "Mortgage",
+                    "Student Loan",
+                    "Car Loan",
+                    "Credit Card",
+                    "Personal Loan"
+                ]
+            },
+            {
+                "type": "text",
+                "placeholder": "Value"
+            }
+        ]
+    },
+    "fixedCosts": {
+        "title": "Fixed Costs",
+        "rows": [
+            {
+                "instanceId": 1
+            }
+        ],
+        "fields": [
+            {
+                "type": "text",
+                "placeholder": "Expense Name"
+            },
+            {
+                "type": "text",
+                "placeholder": "Amount"
+            },
+            {
+                "type": "select",
+                "placeholder": "Category",
+                "options": [
+                    "Mortgage",
+                    "Child Care",
+                    "Car Payments",
+                    "HOA Fees",
+                    "Utilities",
+                    "Other"
+                ]
+            }
+        ]
+    },
+    "goals": {
+        "title": "Financial Goals",
+        "rows": [
+            {
+                "instanceId": 1
+            }
+        ],
+        "fields": [
+            {
+                "type": "button",
+                "child": "Financial Freedom"
+            },
+            {
+                "type": "button",
+                "child": "Early Retirement"
+            },
+            {
+                "type": "button",
+                "child": "Debt Free"
+            },
+            {
+                "type": "button",
+                "child": "Home Ownership"
+            },
+            {
+                "type": "button",
+                "child": "Career Growth"
+            },
+            {
+                "type": "button",
+                "child": "Work Life Balance"
+            },
+            {
+                "type": "button",
+                "child": "Wealth Building"
+            },
+            {
+                "type": "button",
+                "child": "Passive Income"
+            },
+            {
+                "type": "button",
+                "child": "Emergency Fund"
+            },
+            {
+                "type": "button",
+                "child": "Investment Growth"
+            },
+            {
+                "type": "button",
+                "child": "Travel Lifestyle"
+            },
+            {
+                "type": "button",
+                "child": "Family Security"
+            },
+            {
+                "type": "button",
+                "child": "Health and Wellness"
+            },
+            {
+                "type": "button",
+                "child": "Education Funding"
+            },
+            {
+                "type": "button",
+                "child": "Entrepreneurship"
+            },
+            {
+                "type": "button",
+                "child": "Time Freedom"
+            },
+            {
+                "type": "button",
+                "child": "Minimalism"
+            },
+            {
+                "type": "button",
+                "child": "Legacy Planning"
+            },
+            {
+                "type": "button",
+                "child": "Income Stability"
+            },
+            {
+                "type": "button",
+                "child": "Personal Fulfillment"
+            }
+        ]
+    },
+    "upload": {
+        "title": "Upload Financial Data",
+        "rows": [
+            {
+                "instanceId": 1
+            }
+        ],
+        "fields": [
+            {
+                "type": "select",
+                "placeholder": "Category",
+                "options": [
+                    "Checking",
+                    "Savings",
+                    "Credit Card"
+                ]
+            },
+            {
+                "type": "file"
+            }
+        ]
+    }
+}
