@@ -6,10 +6,16 @@
     grid-row: 1; */
     grid-area: 2 / 2 / 2 / 2;
     display: flex;
-    /* flex-direction: column; */
-    gap: 10px;
+    flex-direction: column;
+    gap: 5px;
     padding: 10px 10px;
     margin: 15px;
     border-radius: 10px;
     place-self: center;
 }
+
+.analysis-container h3, 
+.analysis-container p {
+    margin: 5px;
+}
+

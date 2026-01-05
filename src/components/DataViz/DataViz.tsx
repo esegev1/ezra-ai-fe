@@ -1,5 +1,5 @@
 import type { DataObj } from './VizTypes/Graph'
-import type { TableDataItem} from './VizTypes/Table'
+import type { TableDataItem } from './VizTypes/Table'
 import Graph from './VizTypes/Graph'
 import Table from './VizTypes/Table'
 

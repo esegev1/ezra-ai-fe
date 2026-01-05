@@ -12,7 +12,7 @@ import UserConfig from './components/UserConfig/UserConfig.tsx'
 
 import type { DataObj } from './components/DataViz/VizTypes/Graph.tsx'
 import type { TableDataObj } from './components/DataViz/VizTypes/Table.tsx'
-
+import type { AnalysisLangObj } from './components/Analysis/Analysis.tsx'
 
 function App() {
   //Controls whether the config window is open 
@@ -20,7 +20,7 @@ function App() {
   const [acctId, setAcctId] = useState('1')
   const [analysisData, setAnalysisdata] =  useState<DataObj | null>(null)
   const [tableData, setTableData] =  useState<TableDataObj | null>(null)
-  const [analysisLang, setAnalysisLang] = useState
+  const [analysisLang, setAnalysisLang] = useState<AnalysisLangObj | null>(null)
   
   const toggleSettings = () => {
     setIsVisible(!isVisible)
@@ -40,17 +40,17 @@ function App() {
 
   const pullAnalysisLang = async (type: string) => {
     const data = await api.get(`/analysis/${type}/${acctId}`)
-    console.log(data)
-    setTableData(data.data)
+    console.log("lang: ", data)
+    setAnalysisLang(data.data)
   }
 
   return (
     <>
       {isVisible && <UserConfig acctId={acctId} />}
       <SideBar toggleSettings={toggleSettings} banner="testing" />
-      {!isVisible && <DataViz analysisData={analysisData} tableData={tableData} />}
-      {!isVisible && <Analysis analysisLang={pullAnalysisLang}/>}
-      {!isVisible && <InputBox pullAnalysisData={pullAnalysisData} pullTopCosts={pullTopCosts}/>}
+      {!isVisible && analysisData && <DataViz analysisData={analysisData} tableData={tableData} />}
+      {!isVisible && analysisLang && <Analysis analysisLang={analysisLang}/>}
+      {!isVisible && <InputBox pullAnalysisData={pullAnalysisData} pullTopCosts={pullTopCosts} pullAnalysisLang={pullAnalysisLang}/>}
     </>
   )
 }

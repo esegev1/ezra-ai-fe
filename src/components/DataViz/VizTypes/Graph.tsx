@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Label, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { RechartsDevtools } from '@recharts/devtools';
 
 export interface DataObj {
@@ -45,8 +45,6 @@ const Graph = ({ analysisData }: GraphProps) => {
   const [hasData, setHasData] = useState(false)
 
   useEffect(() => {
-    if (!analysisData) return;
-
     console.log('Raw data:', analysisData);  // See what's actually coming in
     console.log('Keys:', Object.keys(analysisData));
     console.log('monthly_income:', analysisData.monthly_income, typeof analysisData.monthly_income);
