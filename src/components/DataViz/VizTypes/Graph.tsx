@@ -6,6 +6,7 @@ export interface DataObj {
   monthly_income: number;
   housing_expenses: number;
   other_expenses: number;
+  spending: number;
 }
 
 interface GraphProps {
@@ -55,12 +56,14 @@ const Graph = ({ analysisData }: GraphProps) => {
       if (Object.keys(analysisData).length > 1) {
         const housingExp = Number(analysisData.housing_expenses);
         const otherExp = Number(analysisData.other_expenses);
-        const leftOver = Number(analysisData.monthly_income) - (housingExp + otherExp);
+        const spending = Number(analysisData.spending);
+        const leftOver = Number(analysisData.monthly_income) - (housingExp + otherExp + spending);
 
         const formattedChartData: Array<{ name: string; value: number }> = [
           { name: 'Housing', value: housingExp },
           { name: 'Fixed Costs', value: otherExp },
           { name: 'Left Over', value: Math.max(0, leftOver) },
+          { name: 'Spending', value: spending },
         ];
 
         setChartData(formattedChartData);
@@ -77,7 +80,7 @@ const Graph = ({ analysisData }: GraphProps) => {
   console.log("chartData: ", chartData)
   console.log("hasData: ", hasData)
 
-  const COLORS = ['#00ffbc', '#8ea5ff', '#ffffff', '#00C49F'];
+  const COLORS = ['#00ffbc', '#8ea5ff', '#ffffff', '#ff00b4'];
 
 
   return (
