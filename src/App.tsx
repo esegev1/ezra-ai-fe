@@ -12,24 +12,37 @@ import UserConfig from './components/UserConfig/UserConfig.tsx'
 
 import type { DataObj } from './components/DataViz/VizTypes/Graph.tsx'
 import type { TableDataObj } from './components/DataViz/VizTypes/Table.tsx'
-import type { AnalysisLangObj } from './components/Analysis/Analysis.tsx'
+import type { AnalysisLangObj, OpenAIObj } from './components/Analysis/Analysis.tsx'
 
 function App() {
   //Controls whether the config window is open 
   const [isVisible, setIsVisible] = useState(false)
-  const [acctId, setAcctId] = useState('1')
-  const [analysisData, setAnalysisdata] =  useState<DataObj | null>(null)
-  const [tableData, setTableData] =  useState<TableDataObj | null>(null)
-  const [analysisLang, setAnalysisLang] = useState<AnalysisLangObj | null>(null)
-  
+  const [acctId, setAcctId] = useState('2')
+
+  const [analysisData, setAnalysisdata] = useState<DataObj | undefined>(undefined)
+  const [tableData, setTableData] = useState<TableDataObj | undefined>(undefined)
+
+  const [analysisLang, setAnalysisLang] = useState<AnalysisLangObj | undefined>(undefined)
+  const [aiResponse, setAIResponse] = useState<OpenAIObj | undefined>(undefined)
+
+  //keep track of the openAI steam response
+  const [streamStatus, setStreamStatus] = useState<string>('');
+  const [isStreaming, setIsStreaming] = useState(false);
+
+  //keep track of latest data sources to disoplay
+  const [latestAnalysis, setLatestAnalysis] = useState<string>('')
+
   const toggleSettings = () => {
     setIsVisible(!isVisible)
   }
 
+
+  //Pull data for budget analysis graph and table
   const pullAnalysisData = async (type: string) => {
     const data = await api.get(`/analysis/${type}/${acctId}`)
     console.log(data)
     setAnalysisdata(data.data[0])
+    
   }
 
   const pullTopCosts = async (type: string) => {
@@ -38,19 +51,103 @@ function App() {
     setTableData(data.data)
   }
 
+  //Pull budget analysis language
   const pullAnalysisLang = async (type: string) => {
     const data = await api.get(`/analysis/${type}/${acctId}`)
     console.log("lang: ", data)
     setAnalysisLang(data.data)
+    setLatestAnalysis('text')
   }
+
+  //Pull AI analysis language
+  const askOpenAI = async (question: string) => {
+    setIsStreaming(true);
+    setAIResponse({ accountId: acctId, answer: '' }); // Reset/Initialize answer
+
+    try {
+      const response = await fetch('http://localhost:3000/openai', { // Use your full backend URL
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, accountId: acctId }),
+      });
+
+      if (!response.body) return;
+      setLatestAnalysis('status');
+
+      const reader = response.body.getReader();
+      console.log("body: ", response.body);
+      console.log("reader: ", reader);
+      const decoder = new TextDecoder();
+      let accumulatedAnswer = "";
+      console.log("accumulatedAnswer: ", accumulatedAnswer);
+
+      // This loop runs as long as the server is sending data
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        // SSE data comes in as "data: {...}\n\n"
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const rawData = line.replace('data: ', '').trim();
+
+            if (rawData === '[DONE]') {
+              setIsStreaming(false);
+              continue;
+            }
+
+            try {
+              const parsed = JSON.parse(rawData);
+              // console.log("parsed: ", parsed);
+
+              // Handle different event types from your backend
+              if (parsed.type === 'agent_start' || parsed.type === 'status') {
+                setStreamStatus(parsed.message); // e.g., "🔍 Financial Expert analyzing..."
+              }
+              // console.log("streamStatus: ", streamStatus)
+
+              if (parsed.type === 'answer_chunk') {
+                accumulatedAnswer += parsed.content;
+                setAIResponse({
+                  accountId: acctId,
+                  answer: accumulatedAnswer
+                });
+                setLatestAnalysis('markdown')
+              }
+            } catch (e) {
+              // Ignore parse errors for partial chunks
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Streaming error:", error);
+      setIsStreaming(false);
+    }
+  };
 
   return (
     <>
       {isVisible && <UserConfig acctId={acctId} />}
+      
       <SideBar toggleSettings={toggleSettings} banner="testing" />
+      
       {!isVisible && analysisData && <DataViz analysisData={analysisData} tableData={tableData} />}
-      {!isVisible && analysisLang && <Analysis analysisLang={analysisLang}/>}
-      {!isVisible && <InputBox pullAnalysisData={pullAnalysisData} pullTopCosts={pullTopCosts} pullAnalysisLang={pullAnalysisLang}/>}
+      
+      {/* {!isVisible && (analysisLang || aiResponse || streamStatus) && */}
+      {!isVisible && latestAnalysis &&
+        <Analysis 
+          analysisLang={analysisLang} 
+          aiResponse={aiResponse} 
+          streamStatus={streamStatus}
+          latestAnalysis={latestAnalysis}
+        />
+      }
+
+      {!isVisible && <InputBox pullAnalysisData={pullAnalysisData} pullTopCosts={pullTopCosts} pullAnalysisLang={pullAnalysisLang} askOpenAI={askOpenAI} latestAnalysis={latestAnalysis} />}
     </>
   )
 }

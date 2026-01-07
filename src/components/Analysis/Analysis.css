@@ -12,6 +12,7 @@
     margin: 15px;
     border-radius: 10px;
     place-self: center;
+    overflow-y: auto;
 }
 
 .analysis-container h3, 
@@ -19,3 +20,38 @@
     margin: 5px;
 }
 
+.stream-status {
+    font-size: 1.3rem;
+    /* justify-content: center; */
+    /* align-items: center; */
+    margin: auto auto;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #777 0%,
+    #333 20%,
+    #777 40%,
+    #04D9FF 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: shimmer 1.8s infinite linear;
+}
+
+.emoji-icon {
+    font-size: 2.5rem;
+    padding: 5px;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}

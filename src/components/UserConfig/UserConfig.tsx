@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './UserConfig.css';
 import api from '../../api/axios';
+import Papa from 'papaparse';
 
 // --- Interfaces ---
 interface RowData {
@@ -33,7 +34,7 @@ interface UserConfigProps {
     acctId: string;
 }
 
-const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
+const UserConfig = ({ acctId }: UserConfigProps) => {
     console.log(`acctId: ${acctId}`)
     const goalsList = [
         "Financial Freedom", "Early Retirement", "Debt Free", "Home Ownership", "Career Growth", "Work Life Balance",
@@ -76,7 +77,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
             rows: [{ instanceId: 1 }],
             fields: [
                 { id: "name", type: "text", placeholder: "Name" },
-                { id: "category", type: "select", placeholder: "Category...", options: ['Mortgage', 'Rental Property', 'Student Loan', 'Car Loan', 'Credit Card', 'Personal Loan','Other'] },
+                { id: "category", type: "select", placeholder: "Category...", options: ['Mortgage', 'Rental Property', 'Student Loan', 'Car Loan', 'Credit Card', 'Personal Loan', 'Other'] },
                 { id: "value", type: "text", placeholder: "Value" },
             ]
         },
@@ -85,7 +86,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
             rows: [{ instanceId: 1 }],
             fields: [
                 { id: "name", type: "text", placeholder: "Expense Name" },
-                { id: "category", type: "select", placeholder: "Category", options: ['Mortgage','Rental Property', 'Groceries', 'Child Care', 'Car Payments', 'HOA Fees', '529(c) Contribution', 'Utilities', 'Other'] },
+                { id: "category", type: "select", placeholder: "Category", options: ['Mortgage', 'Rental Property', 'Groceries', 'Child Care', 'Car Payments', 'HOA Fees', '529(c) Contribution', 'Utilities', 'Other'] },
                 { id: "amount", type: "text", placeholder: "Amount" }
             ]
         },
@@ -93,7 +94,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
             title: "Financial Goals",
             rows: [{ instanceId: 1 }],
             //NEED TO FIX ID HERE SO THAT EACH BUTTON HAS ITS OWN ID
-            fields: goalsList.map(goal => ({id: "goal",  type: "button", child: goal }))
+            fields: goalsList.map(goal => ({ id: "goal", type: "button", child: goal }))
         },
         upload: {
             title: "Upload Financial Data",
@@ -157,14 +158,126 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
     }, [acctId]);
 
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, fieldIndex: number) => {
+    // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, fieldIndex: number) => {
+    //     const file = event.target.files?.[0];
+    //     console.log("file: ", file)
+    //     if (file) {
+    //         setUploadedFiles(prev => ({
+    //             ...prev,
+    //             [`field-${fieldIndex}`]: file
+    //         }));
+    //     }
+
+    //     console.log("uploadedFiles ", uploadedFiles)
+    // };
+
+    // const handleFileUpload = async (sectionKey: string, instanceId: number) => {
+    //     console.log('in handleFileUpload');
+    //     const fileKey = `${sectionKey}-${instanceId}`;
+    //     const file = uploadedFiles[fileKey];
+
+    //     if (!file) {
+    //         alert("Please select a file first");
+    //         return;
+    //     }
+
+    //     // Get the category from the select input
+    //     const container = document.querySelector(
+    //         `[data-instanceid="${instanceId}"]`
+    //     ) as HTMLDivElement;
+    //     const categorySelect = container?.querySelector('select') as HTMLSelectElement;
+    //     const category = categorySelect?.value;
+
+    //     if (!category) {
+    //         alert("Please select a category");
+    //         return;
+    //     }
+
+    //     const formData = new FormData();
+    //     formData.append('file', file);
+    //     formData.append('acctId', acctId);
+    //     formData.append('category', category);
+
+    //     try {
+    //         const response = await api.post('/config/upload', formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data',
+    //             }
+    //         });
+
+    //         console.log('Upload response:', response.data);
+    //         alert(`File uploaded successfully to ${response.data.path || 'server'}`);
+
+    //         // Clear the file from state
+    //         setUploadedFiles(prev => {
+    //             const newState = { ...prev };
+    //             delete newState[fileKey];
+    //             return newState;
+    //         });
+
+    //         // Reset the file input
+    //         const fileInput = container?.querySelector('input[type="file"]') as HTMLInputElement;
+    //         if (fileInput) fileInput.value = '';
+
+    //     } catch (err) {
+    //         console.error("Upload error:", err);
+    //         alert("Failed to upload file. Please try again.");
+    //     }
+    // };
+
+    const handleFileUploadComplete = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+        instanceId: number,
+        sectionKey: string
+    ) => {
         const file = event.target.files?.[0];
-        if (file) {
-            setUploadedFiles(prev => ({
-                ...prev,
-                [`field-${fieldIndex}`]: file
-            }));
+
+        if (!file) return;
+
+        // Get category first
+        const container = event.target.closest('[data-instanceid]') as HTMLDivElement;
+        const categorySelect = container?.querySelector('select') as HTMLSelectElement;
+        const category = categorySelect?.value ==="Credit Card" ? 'creditCards' : '';
+
+        if (!category) {
+            alert("Please select a category first");
+            event.target.value = ''; // Reset file input
+            return;
         }
+
+        // Parse the CSV
+        Papa.parse(file, {
+            header: false, //first row is headers, if so , returns object
+            skipEmptyLines: true,
+            skipFirstNLines: 1,  // Skip the header row
+            complete: async (results) => {
+                if (results.errors.length > 0) {
+                    alert('CSV parsing errors detected');
+                    console.error(results.errors);
+                    return;
+                }
+
+                try {
+                    // Upload immediately after parsing
+                    const response = await api.post('/config/upload', {
+                        data: results.data,
+                        acctId,
+                        category
+                    });
+
+                    alert(`${results.data.length} rows uploaded successfully`);
+                    event.target.value = ''; // Reset file input
+
+                } catch (err) {
+                    console.error("Upload error:", err);
+                    alert("Failed to upload data");
+                }
+            },
+            error: (error) => {
+                console.error('Parse error:', error);
+                alert('Invalid CSV file');
+            }
+        });
     };
 
     const handleInputChanges = async (event: React.FormEvent<HTMLDivElement>) => {
@@ -175,7 +288,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
         if (!parent) return;
 
         const sectionKey = parent.closest('.config-box')?.id;
-        if (!sectionKey) return;
+        if (!sectionKey || sectionKey === "upload") return;
 
         const rowInstanceId = Number(parent.getAttribute('data-instanceid'));
 
@@ -185,7 +298,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
         const existingDbId = currentRow?.dbId;
         // console.log('Current row:', currentRow);
 
-        const allSiblings = Array.from(parent.querySelectorAll('input, select'));
+        const allSiblings = Array.from(parent.querySelectorAll('input:not([type="file"]), select'));
         const values: (string | number)[] = [acctId];
         let allFieldsFilled = true;
 
@@ -202,7 +315,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
                     values.push(value);
                 }
 
-                
+
             } else {
                 allFieldsFilled = false;
             }
@@ -271,7 +384,8 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
         }));
     };
 
-    const renderField = (field: Field, index: number, rowData?: any, sectionKey?: string) => {
+    const renderField = (field: Field, index: number, instanceId: number, rowData?: any, sectionKey?: string) => {
+        console.log('rendering fields')
         const commonClass = 'input-tag';
 
         // Map field order to database column names
@@ -294,6 +408,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
         //     rowData,
         //     fieldType: field.type
         // });
+
 
         switch (field.type) {
             case 'text':
@@ -337,18 +452,34 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
                     </button>
                 );
             case 'file':
-                return (
-                    <label key={index} className='file-label'>
-                        <input
-                            type="file"
-                            id={field.id}
-                            className='file-input'
-                            accept={field.accept}
-                            onChange={(e) => handleFileChange(e, index)}
-                        />
-                        {field.label || 'Choose file'}
-                    </label>
-                );
+                {
+                    const fileKey = `${sectionKey}-${instanceId}`;
+                    const hasFile = uploadedFiles[fileKey];
+
+                    return (
+                        <div key={index} className='file-upload-wrapper'>
+                            <label className='file-label'>
+                                <input
+                                    type="file"
+                                    id={field.id}
+                                    className='file-input'
+                                    accept={field.accept}
+                                    onChange={(e) => handleFileUploadComplete(e, instanceId, sectionKey!)}
+                                />
+                                {hasFile ? hasFile.name : (field.label || 'Choose file')}
+                            </label>
+                            {hasFile && (
+                                <button
+                                    type="button"
+                                    className='upload-button'
+                                    // onClick={() => handleFileUpload(sectionKey!, instanceId!)}
+                                >
+                                    Upload
+                                </button>
+                            )}
+                        </div>
+                    );
+                }
             default:
                 return null;
         }
@@ -372,7 +503,7 @@ const UserConfig: React.FC<UserConfigProps> = ({ acctId }) => {
                             data-instanceid={row.instanceId}
                             className='config-input-container'
                         >
-                            {section.fields.map((field, idx) => renderField(field, idx, row.data, key))}
+                            {section.fields.map((field, idx) => renderField(field, idx, row.instanceId, row.data, key))}
 
                             {row.dbId && (
                                 <button
