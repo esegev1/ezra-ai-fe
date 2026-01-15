@@ -89,10 +89,13 @@ function App() {
         // SSE data comes in as "data: {...}\n\n"
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n');
+        // console.log(`chunk: ${chunk}, lines: ${lines}`)
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
+            // console.log(`line: ${line}`)
             const rawData = line.replace('data: ', '').trim();
+            console.log(`rawData: ${rawData}`)
 
             if (rawData === '[DONE]') {
               setIsStreaming(false);
@@ -102,15 +105,18 @@ function App() {
             try {
               const parsed = JSON.parse(rawData);
               // console.log("parsed: ", parsed);
+              console.log(`parsed: ${JSON.stringify(parsed)}`)
 
               // Handle different event types from your backend
-              if (parsed.type === 'agent_start' || parsed.type === 'status') {
-                setStreamStatus(parsed.message); // e.g., "🔍 Financial Expert analyzing..."
+              //parsed.type === 'agent_start' || parsed.type === 
+              //CHANGE THIS TO CHECK IF THE STATUS OR DELTA KEYS EXIST, TO UNDERSTAND WHY JUST RUN THE CONSOLE AND LOOK AT THE PARSED OBJECT THAT THE LOGIC BELOW IS RUNNING ON. 
+              if ('status' in parsed) {
+                setStreamStatus(parsed.status); // e.g., "🔍 Financial Expert analyzing..."
               }
               // console.log("streamStatus: ", streamStatus)
 
-              if (parsed.type === 'answer_chunk') {
-                accumulatedAnswer += parsed.content;
+              if ('delta' in parsed) {
+                accumulatedAnswer += parsed.delta;
                 setAIResponse({
                   accountId: acctId,
                   answer: accumulatedAnswer
